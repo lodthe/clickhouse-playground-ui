@@ -75,7 +75,7 @@ export class Client {
         if (response.result) {
           return {
             input: response.result.input,
-            output: response.result.putput,
+            output: response.result.output,
             queryRunId: response.result.query_run_id,
           };
         } else {
