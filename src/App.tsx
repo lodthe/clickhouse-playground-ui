@@ -151,11 +151,9 @@ class App extends React.Component {
     });
   }
 
-  private handleSelectedVersionChange(event: SelectChangeEvent<string>) {
-    event.preventDefault();
-
+  private handleSelectedVersionChange(newValue: string) {
     this.setState({
-      selectedVersion: event.target.value,
+      selectedVersion: newValue,
     });
   }
 
@@ -176,6 +174,7 @@ class App extends React.Component {
                 tags={this.state.tags}
                 selectedVersion={this.state.selectedVersion}
                 onChange={(e) => this.handleSelectedVersionChange(e)}
+                disabled={this.state.requestIsRunning}
               />
 
               <Button

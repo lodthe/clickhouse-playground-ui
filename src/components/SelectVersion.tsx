@@ -1,34 +1,36 @@
 import * as React from 'react';
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import { SelectChangeEvent } from "@mui/material";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 export type SelectVersionProps = {
   tags: string[];
   selectedVersion: string;
-  onChange: (event: SelectChangeEvent<string>) => any;
+  onChange: (newValue: string) => any;
+  disabled: boolean;
 };
 
 export default function SelectVersion(props: SelectVersionProps) {
   return (
-    <FormControl sx={{ my: 1, px: 1, flexGrow: 1 }}>
-      <InputLabel id="version-label">ClickHouse Version</InputLabel>
-
-      <Select
-        labelId="version-label"
-        id="version-select"
-        value={props.selectedVersion}
-        onChange={(e) => props.onChange(e)}
-        label="ClickHouse version"
-      >
-        {
-          props.tags.map(tag =>
-            <MenuItem key={tag} value={tag}>{tag}</MenuItem>
-            )
-        }
-      </Select>
-    </FormControl>
+    <Autocomplete
+      id='select-clickhouse-version'
+      sx={{ my: 1, px: 1, flexGrow: 1, minWidth: '150px' }}
+      disableClearable
+      autoSelect
+      options={props.tags}
+      value={props.selectedVersion}
+      disabled={props.disabled}
+        onChange={(e, newValue) => props.onChange(newValue)}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          variant='outlined'
+          label='ClickHouse Version'
+          InputProps={{
+            ...params.InputProps,
+            type: 'search',
+          }}
+        />
+      )}
+    />
   );
 }
