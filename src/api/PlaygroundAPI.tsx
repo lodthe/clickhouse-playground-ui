@@ -1,18 +1,18 @@
 export type GetTagsResponse = {
   tags: string[];
-}
+};
 
 export type GetQueryRunResponse = {
   input: string;
   output: string;
   queryRunId: string;
-}
+};
 
 export type RunQueryResponse = {
   queryRunId: string;
   output: string;
   timeElapsed: string;
-}
+};
 
 export class Client {
   apiBaseUrl: string;
@@ -22,18 +22,17 @@ export class Client {
   }
 
   public getTags(): Promise<GetTagsResponse> {
-    return fetch(this.apiBaseUrl + 'tags')
-      .then(response => response.json())
-      .then(response => {
+    return fetch(`${this.apiBaseUrl}tags`)
+      .then((response) => response.json())
+      .then((response) => {
         if (response.result) {
           return {
             tags: response.result.tags,
           };
-        } else {
-          throw Error(response.error.message);
         }
+        throw Error(response.error.message);
       })
-      .catch(error => {
+      .catch((error) => {
         throw error;
       });
   }
@@ -42,47 +41,45 @@ export class Client {
     const requestMetadata = {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        query: query,
-        version: version,
+        query,
+        version,
       }),
     };
 
-    return fetch(this.apiBaseUrl + 'runs', requestMetadata)
-      .then(response => response.json())
-      .then(response => {
+    return fetch(`${this.apiBaseUrl}runs`, requestMetadata)
+      .then((response) => response.json())
+      .then((response) => {
         if (response.result) {
           return {
             queryRunId: response.result.query_run_id,
             output: response.result.output,
             timeElapsed: response.result.time_elapsed,
           };
-        } else {
-          throw Error(response.error.message);
         }
+        throw Error(response.error.message);
       })
-      .catch(error => {
+      .catch((error) => {
         throw error;
       });
   }
 
   public getQueryRun(id: string): Promise<GetQueryRunResponse> {
-    return fetch(this.apiBaseUrl + 'runs/' + id)
-      .then(response => response.json())
-      .then(response => {
+    return fetch(`${this.apiBaseUrl}runs/${id}`)
+      .then((response) => response.json())
+      .then((response) => {
         if (response.result) {
           return {
             input: response.result.input,
             output: response.result.output,
             queryRunId: response.result.query_run_id,
           };
-        } else {
-          throw Error(response.error.message);
         }
+        throw Error(response.error.message);
       })
-      .catch(error => {
+      .catch((error) => {
         throw error;
       });
   }
