@@ -3,6 +3,7 @@ export type GetTagsResponse = {
 };
 
 export type GetQueryRunResponse = {
+  version: string;
   input: string;
   output: string;
   queryRunId: string;
@@ -72,6 +73,7 @@ export class Client {
       .then((response) => {
         if (response.result) {
           return {
+            version: response.result.version,
             input: response.result.input,
             output: response.result.output,
             queryRunId: response.result.query_run_id,

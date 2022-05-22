@@ -92,6 +92,7 @@ class App extends React.Component {
         this.setState({
           input: result.input,
           output: result.output,
+          selectedVersion: result.version,
         });
       })
       .catch((error) => {
