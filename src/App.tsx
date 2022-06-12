@@ -59,6 +59,12 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === 'Enter') {
+        this.runQuery();
+      }
+    });
+
     const matches = location.pathname.match(/\/([a-z\d\-]+)/); //eslint-disable-line
     if (matches) {
       this.getQueryRun(matches[1]);
