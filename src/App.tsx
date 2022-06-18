@@ -9,6 +9,8 @@ import FormHelperText from '@mui/material/FormHelperText';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { PlayArrow } from '@mui/icons-material';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import IconButton from '@mui/material/IconButton';
 import { useNavigate, NavigateFunction } from 'react-router-dom';
 import SelectVersion from './components/SelectVersion';
 import {
@@ -23,6 +25,7 @@ const defaultInput = 'CREATE TABLE users (uid Int16, name String, age Int16) ENG
 
 const textAreaRows = 15;
 const apiUrl = process.env.REACT_APP_API_URL;
+const githubRepoUrl = 'https://github.com/lodthe/clickhouse-playground';
 
 type State = {
   tags: string[];
@@ -192,7 +195,16 @@ class App extends React.Component {
                 <PlayArrow fontSize="large" />
                 Run query
               </Button>
-              <Box sx={{ flexGrow: 6 }} />
+              <Box sx={{ flexGrow: 5 }} />
+
+              <IconButton
+                size="large"
+                edge="end"
+                color="secondary"
+                onClick={() => window.open(githubRepoUrl, '_blank')}
+              >
+                <GitHubIcon />
+              </IconButton>
             </Toolbar>
           </AppBar>
         </Box>
