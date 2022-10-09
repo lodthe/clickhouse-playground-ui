@@ -209,8 +209,8 @@ class App extends React.Component {
           </AppBar>
         </Box>
 
-        <Box component="form" sx={{ my: 1 }}>
-          <Grid container>
+        <Box height="100%" component="form" sx={{ my: 1 }}>
+          <Grid container height="100%">
             <TextField
               margin="normal"
               multiline
@@ -224,6 +224,12 @@ class App extends React.Component {
               onChange={(e) => this.handleQueryFieldChange(e)}
               autoFocus
               sx={{ flexGrow: 1 }}
+              inputProps={{
+                style: {
+                  height: '75vh',
+                  fontFamily: 'Roboto Mono, monospace',
+                },
+              }}
             />
 
             <FormControl sx={{ flexGrow: 1 }}>
@@ -236,7 +242,13 @@ class App extends React.Component {
                 label="Output"
                 id="output"
                 value={this.state.output}
-                inputProps={{ readOnly: true }}
+                inputProps={{
+                  readOnly: true,
+                  style: {
+                    height: '75vh',
+                    fontFamily: 'Roboto Mono, monospace',
+                  },
+                }}
               />
               <FormHelperText color="red">{this.state.timeElapsed}</FormHelperText>
             </FormControl>
