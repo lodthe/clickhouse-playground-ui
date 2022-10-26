@@ -225,6 +225,7 @@ class App extends React.Component {
               autoFocus
               sx={{ flexGrow: 1 }}
               inputProps={{
+                spellCheck: false,
                 style: {
                   height: '75vh',
                   fontFamily: 'Roboto Mono, monospace',
@@ -243,6 +244,7 @@ class App extends React.Component {
                 id="output"
                 value={this.state.output}
                 inputProps={{
+                  spellCheck: false,
                   readOnly: true,
                   style: {
                     height: '75vh',
