@@ -1,16 +1,19 @@
 import * as React from 'react';
+// import { useEffect, useRef } from "react";
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
-import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { PlayArrow } from '@mui/icons-material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import IconButton from '@mui/material/IconButton';
+import CodeMirror from '@uiw/react-codemirror';
+// import { useCodeMirror } from "@uiw/react-codemirror";
+import { EditorView } from '@codemirror/view';
+import { sql } from '@codemirror/lang-sql';
+import * as themes from '@uiw/codemirror-themes-all';
 import { useNavigate, NavigateFunction } from 'react-router-dom';
 import SelectVersion from './components/SelectVersion';
 import {
@@ -23,7 +26,6 @@ const defaultInput = 'CREATE TABLE users (uid Int16, name String, age Int16) ENG
 + "INSERT INTO users VALUES (8888, 'Alice', 50);\n\n"
 + 'SELECT * FROM users;';
 
-const textAreaRows = 15;
 const apiUrl = process.env.REACT_APP_API_URL;
 const githubRepoUrl = 'https://github.com/lodthe/clickhouse-playground';
 
@@ -32,6 +34,7 @@ type State = {
 
   selectedVersion: string;
   input: string;
+  initialInput: string;
 
   requestIsRunning: boolean;
 
@@ -48,6 +51,7 @@ class App extends React.Component {
 
     selectedVersion: 'latest',
     input: '',
+    initialInput: '',
 
     requestIsRunning: false,
     output: '',
@@ -74,6 +78,7 @@ class App extends React.Component {
     } else {
       this.setState({
         input: defaultInput,
+        initialInput: defaultInput,
       });
     }
 
@@ -100,6 +105,7 @@ class App extends React.Component {
       .then((result: GetQueryRunResponse) => {
         this.setState({
           input: result.input,
+          initialInput: result.input,
           output: result.output,
           selectedVersion: result.version,
         });
@@ -152,11 +158,9 @@ class App extends React.Component {
   }
 
   // eslint-disable-next-line
-  private handleQueryFieldChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    event.preventDefault();
-
+  private handleQueryFieldChangeRaw(value: string) {
     this.setState({
-      input: event.target.value,
+      input: value,
     });
   }
 
@@ -173,6 +177,36 @@ class App extends React.Component {
   }
 
   public render() {
+    // const editor = useRef();
+    // const { setContainer } = useCodeMirror({
+    //   container: editor.current,
+    //   theme: themes.xcodeLight,
+    //   placeholder: 'Enter SQL queries...',
+    //   value: this.state.initialInput,
+    //   height: '75vh',
+    //   editable: !this.state.requestIsRunning,
+    //   extensions: [
+    //     EditorView.lineWrapping,
+    //     sql(),
+    //   ],
+    //   basicSetup: {
+    //     lineNumbers: true,
+    //     foldGutter: false,
+    //     indentOnInput: false,
+    //     autocompletion: false,
+    //     highlightActiveLine: false,
+    //   },
+    //   onChange: (value) => this.handleQueryFieldChangeRaw(value),
+    // });
+
+    // useEffect(() => {
+    //   if (editor.current) {
+    //     setContainer(editor.current);
+    //   }
+    //   // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [editor.current]);
+    // return <div ref={editor} />;
+
     return (
       <Container maxWidth="xl">
         <Box sx={{ flexGrow: 2 }}>
@@ -210,50 +244,45 @@ class App extends React.Component {
         </Box>
 
         <Box height="100%" component="form" sx={{ my: 1 }}>
-          <Grid container height="100%">
-            <TextField
-              margin="normal"
-              multiline
-              rows={textAreaRows}
-              required
-              id="query"
-              label="Query"
-              name="query"
-              value={this.state.input}
-              disabled={this.state.requestIsRunning}
-              onChange={(e) => this.handleQueryFieldChange(e)}
-              autoFocus
-              sx={{ flexGrow: 1 }}
-              inputProps={{
-                spellCheck: false,
-                style: {
-                  height: '75vh',
-                  fontFamily: 'Roboto Mono, monospace',
-                },
-              }}
-            />
-
-            <FormControl sx={{ flexGrow: 1 }}>
-              <TextField
-                margin="normal"
-                multiline
-                rows={textAreaRows}
-                fullWidth
-                name="output"
-                label="Output"
-                id="output"
-                value={this.state.output}
-                inputProps={{
-                  spellCheck: false,
-                  readOnly: true,
-                  style: {
-                    height: '75vh',
-                    fontFamily: 'Roboto Mono, monospace',
-                  },
+          <Grid container height="100%" spacing={2}>
+            <Grid item xs={12} sm={12} md={6}>
+              <CodeMirror
+                autoFocus
+                theme={themes.xcodeLight}
+                value={this.state.initialInput}
+                placeholder="Enter SQL queries..."
+                height="75vh"
+                editable={!this.state.requestIsRunning}
+                extensions={[
+                  EditorView.lineWrapping,
+                  sql(),
+                ]}
+                basicSetup={{
+                  lineNumbers: true,
+                  foldGutter: false,
+                  indentOnInput: false,
+                  autocompletion: false,
+                  highlightActiveLine: false,
                 }}
+                onChange={(value) => this.handleQueryFieldChangeRaw(value)}
               />
-              <FormHelperText color="red">{this.state.timeElapsed}</FormHelperText>
-            </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={12} md={6}>
+              <CodeMirror
+                value={`${this.state.output}\n\nTime elapsed: ${this.state.timeElapsed}`}
+                basicSetup={{
+                  lineNumbers: false,
+                  foldGutter: false,
+                  dropCursor: true,
+                  indentOnInput: false,
+                  highlightActiveLine: false,
+                }}
+                height="75vh"
+                extensions={[EditorView.lineWrapping]}
+                readOnly
+              />
+            </Grid>
           </Grid>
         </Box>
       </Container>
