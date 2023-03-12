@@ -1,21 +1,24 @@
-import * as React from 'react';
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
-import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
+import { sql } from '@codemirror/lang-sql';
+import { EditorView } from '@codemirror/view';
+import { autocompletion } from '@codemirror/autocomplete';
 import { PlayArrow } from '@mui/icons-material';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import FormHelperText from '@mui/material/FormHelperText';
+import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
-import { useNavigate, NavigateFunction } from 'react-router-dom';
-import SelectVersion from './components/SelectVersion';
+import Toolbar from '@mui/material/Toolbar';
+import CodeMirror from '@uiw/react-codemirror';
+import * as React from 'react';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
 import {
-  Client, GetTagsResponse, RunQueryResponse, GetQueryRunResponse,
+  Client, GetQueryRunResponse, GetTagsResponse, RunQueryResponse,
 } from './api/PlaygroundAPI';
+import { xcodeLight, xcodeLightPatch } from './CodeMirrorTheme';
+import SelectVersion from './components/SelectVersion';
 
 const defaultInput = 'CREATE TABLE users (uid Int16, name String, age Int16) ENGINE=Memory;\n\n'
 + "INSERT INTO users VALUES (1231, 'John', 33);\n"
@@ -23,7 +26,6 @@ const defaultInput = 'CREATE TABLE users (uid Int16, name String, age Int16) ENG
 + "INSERT INTO users VALUES (8888, 'Alice', 50);\n\n"
 + 'SELECT * FROM users;';
 
-const textAreaRows = 15;
 const apiUrl = process.env.REACT_APP_API_URL;
 const githubRepoUrl = 'https://github.com/lodthe/clickhouse-playground';
 
@@ -32,6 +34,7 @@ type State = {
 
   selectedVersion: string;
   input: string;
+  initialInput: string;
 
   requestIsRunning: boolean;
 
@@ -48,6 +51,7 @@ class App extends React.Component {
 
     selectedVersion: 'latest',
     input: '',
+    initialInput: '',
 
     requestIsRunning: false,
     output: '',
@@ -74,6 +78,7 @@ class App extends React.Component {
     } else {
       this.setState({
         input: defaultInput,
+        initialInput: defaultInput,
       });
     }
 
@@ -100,6 +105,7 @@ class App extends React.Component {
       .then((result: GetQueryRunResponse) => {
         this.setState({
           input: result.input,
+          initialInput: result.input,
           output: result.output,
           selectedVersion: result.version,
         });
@@ -152,11 +158,9 @@ class App extends React.Component {
   }
 
   // eslint-disable-next-line
-  private handleQueryFieldChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    event.preventDefault();
-
+  private handleQueryFieldChangeRaw(value: string) {
     this.setState({
-      input: event.target.value,
+      input: value,
     });
   }
 
@@ -173,6 +177,7 @@ class App extends React.Component {
   }
 
   public render() {
+    // EditorView.theme()
     return (
       <Container maxWidth="xl">
         <Box sx={{ flexGrow: 2 }}>
@@ -209,51 +214,58 @@ class App extends React.Component {
           </AppBar>
         </Box>
 
-        <Box height="100%" component="form" sx={{ my: 1 }}>
-          <Grid container height="100%">
-            <TextField
-              margin="normal"
-              multiline
-              rows={textAreaRows}
-              required
-              id="query"
-              label="Query"
-              name="query"
-              value={this.state.input}
-              disabled={this.state.requestIsRunning}
-              onChange={(e) => this.handleQueryFieldChange(e)}
-              autoFocus
-              sx={{ flexGrow: 1 }}
-              inputProps={{
-                spellCheck: false,
-                style: {
-                  height: '75vh',
-                  fontFamily: 'Roboto Mono, monospace',
-                },
-              }}
-            />
-
-            <FormControl sx={{ flexGrow: 1 }}>
-              <TextField
-                margin="normal"
-                multiline
-                rows={textAreaRows}
-                fullWidth
-                name="output"
-                label="Output"
-                id="output"
-                value={this.state.output}
-                inputProps={{
-                  spellCheck: false,
-                  readOnly: true,
-                  style: {
-                    height: '75vh',
-                    fontFamily: 'Roboto Mono, monospace',
-                  },
+        <Box height="100%" component="form" sx={{ my: 1, mt: 2 }}>
+          <Grid container height="100%" spacing={1}>
+            <Grid item xs={12} sm={12} md={6}>
+              <CodeMirror
+                autoFocus
+                theme={xcodeLight}
+                value={this.state.initialInput}
+                placeholder="Enter SQL queries..."
+                height="75vh"
+                editable={!this.state.requestIsRunning}
+                extensions={[
+                  xcodeLightPatch,
+                  EditorView.lineWrapping,
+                  autocompletion({
+                    icons: false,
+                  }),
+                  sql({
+                    upperCaseKeywords: true,
+                  }),
+                ]}
+                basicSetup={{
+                  lineNumbers: true,
+                  foldGutter: false,
+                  indentOnInput: false,
+                  autocompletion: true,
+                  highlightActiveLine: false,
                 }}
+                onChange={(value) => this.handleQueryFieldChangeRaw(value)}
               />
-              <FormHelperText color="red">{this.state.timeElapsed}</FormHelperText>
-            </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={12} md={6}>
+              <CodeMirror
+                theme={xcodeLight}
+                value={this.state.output}
+                basicSetup={{
+                  lineNumbers: false,
+                  foldGutter: false,
+                  dropCursor: true,
+                  indentOnInput: false,
+                  highlightActiveLine: false,
+                }}
+                height="75vh"
+                extensions={[
+                  xcodeLightPatch,
+                  EditorView.lineWrapping,
+                ]}
+                readOnly
+              />
+
+              <FormHelperText>{this.state.timeElapsed}</FormHelperText>
+            </Grid>
           </Grid>
         </Box>
       </Container>
