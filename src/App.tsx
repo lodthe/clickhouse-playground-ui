@@ -1,24 +1,24 @@
-import * as React from 'react';
-// import { useEffect, useRef } from "react";
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
+import { sql } from '@codemirror/lang-sql';
+import { EditorView } from '@codemirror/view';
+import { autocompletion } from '@codemirror/autocomplete';
 import { PlayArrow } from '@mui/icons-material';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import FormHelperText from '@mui/material/FormHelperText';
+import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
+import Toolbar from '@mui/material/Toolbar';
 import CodeMirror from '@uiw/react-codemirror';
-// import { useCodeMirror } from "@uiw/react-codemirror";
-import { EditorView } from '@codemirror/view';
-import { sql } from '@codemirror/lang-sql';
-import * as themes from '@uiw/codemirror-themes-all';
-import { useNavigate, NavigateFunction } from 'react-router-dom';
-import SelectVersion from './components/SelectVersion';
+import * as React from 'react';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
 import {
-  Client, GetTagsResponse, RunQueryResponse, GetQueryRunResponse,
+  Client, GetQueryRunResponse, GetTagsResponse, RunQueryResponse,
 } from './api/PlaygroundAPI';
+import { xcodeLight, xcodeLightPatch } from './CodeMirrorTheme';
+import SelectVersion from './components/SelectVersion';
 
 const defaultInput = 'CREATE TABLE users (uid Int16, name String, age Int16) ENGINE=Memory;\n\n'
 + "INSERT INTO users VALUES (1231, 'John', 33);\n"
@@ -177,36 +177,7 @@ class App extends React.Component {
   }
 
   public render() {
-    // const editor = useRef();
-    // const { setContainer } = useCodeMirror({
-    //   container: editor.current,
-    //   theme: themes.xcodeLight,
-    //   placeholder: 'Enter SQL queries...',
-    //   value: this.state.initialInput,
-    //   height: '75vh',
-    //   editable: !this.state.requestIsRunning,
-    //   extensions: [
-    //     EditorView.lineWrapping,
-    //     sql(),
-    //   ],
-    //   basicSetup: {
-    //     lineNumbers: true,
-    //     foldGutter: false,
-    //     indentOnInput: false,
-    //     autocompletion: false,
-    //     highlightActiveLine: false,
-    //   },
-    //   onChange: (value) => this.handleQueryFieldChangeRaw(value),
-    // });
-
-    // useEffect(() => {
-    //   if (editor.current) {
-    //     setContainer(editor.current);
-    //   }
-    //   // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [editor.current]);
-    // return <div ref={editor} />;
-
+    // EditorView.theme()
     return (
       <Container maxWidth="xl">
         <Box sx={{ flexGrow: 2 }}>
@@ -244,24 +215,30 @@ class App extends React.Component {
         </Box>
 
         <Box height="100%" component="form" sx={{ my: 1 }}>
-          <Grid container height="100%" spacing={2}>
+          <Grid container height="100%" spacing={1}>
             <Grid item xs={12} sm={12} md={6}>
               <CodeMirror
                 autoFocus
-                theme={themes.xcodeLight}
+                theme={xcodeLight}
                 value={this.state.initialInput}
                 placeholder="Enter SQL queries..."
                 height="75vh"
                 editable={!this.state.requestIsRunning}
                 extensions={[
+                  xcodeLightPatch,
                   EditorView.lineWrapping,
-                  sql(),
+                  autocompletion({
+                    icons: false,
+                  }),
+                  sql({
+                    upperCaseKeywords: true,
+                  }),
                 ]}
                 basicSetup={{
                   lineNumbers: true,
                   foldGutter: false,
                   indentOnInput: false,
-                  autocompletion: false,
+                  autocompletion: true,
                   highlightActiveLine: false,
                 }}
                 onChange={(value) => this.handleQueryFieldChangeRaw(value)}
@@ -270,7 +247,8 @@ class App extends React.Component {
 
             <Grid item xs={12} sm={12} md={6}>
               <CodeMirror
-                value={`${this.state.output}\n\nTime elapsed: ${this.state.timeElapsed}`}
+                theme={xcodeLight}
+                value={this.state.output}
                 basicSetup={{
                   lineNumbers: false,
                   foldGutter: false,
@@ -279,9 +257,14 @@ class App extends React.Component {
                   highlightActiveLine: false,
                 }}
                 height="75vh"
-                extensions={[EditorView.lineWrapping]}
+                extensions={[
+                  xcodeLightPatch,
+                  EditorView.lineWrapping,
+                ]}
                 readOnly
               />
+
+              <FormHelperText>{this.state.timeElapsed}</FormHelperText>
             </Grid>
           </Grid>
         </Box>
