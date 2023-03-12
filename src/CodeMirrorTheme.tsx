@@ -46,8 +46,9 @@ export const xcodeLight = xcodeLightInit();
 export const xcodeLightPatch = EditorView.theme({
   '&': {
     fontSize: '12pt',
-    border: '1px solid #000000',
-    'border-radius': '5px',
+    border: '1px solid #556cd6',
+    'border-radius': '3px',
+    padding: '3px',
   },
   '&.cm-editor.cm-focused': {
     outline: 'none',

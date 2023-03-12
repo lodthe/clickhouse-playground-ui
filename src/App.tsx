@@ -214,7 +214,7 @@ class App extends React.Component {
           </AppBar>
         </Box>
 
-        <Box height="100%" component="form" sx={{ my: 1 }}>
+        <Box height="100%" component="form" sx={{ my: 1, mt: 2 }}>
           <Grid container height="100%" spacing={1}>
             <Grid item xs={12} sm={12} md={6}>
               <CodeMirror
