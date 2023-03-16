@@ -1,3 +1,5 @@
+import posthog from 'posthog-js';
+
 export type GetTagsResponse = {
   tags: string[];
 };
@@ -23,6 +25,8 @@ export class Client {
   }
 
   public getTags(): Promise<GetTagsResponse> {
+    posthog.capture('api: getTags');
+
     return fetch(`${this.apiBaseUrl}tags`)
       .then((response) => response.json())
       .then((response) => {
@@ -39,6 +43,8 @@ export class Client {
   }
 
   public runQuery(query: string, version: string): Promise<RunQueryResponse> {
+    posthog.capture('api: runQuery', { version });
+
     const requestMetadata = {
       method: 'POST',
       headers: {
@@ -68,6 +74,8 @@ export class Client {
   }
 
   public getQueryRun(id: string): Promise<GetQueryRunResponse> {
+    posthog.capture('api: getQueryRun', { id });
+
     return fetch(`${this.apiBaseUrl}runs/${id}`)
       .then((response) => response.json())
       .then((response) => {
