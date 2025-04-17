@@ -38,7 +38,7 @@ export class Client {
       });
   }
 
-  public runQuery(query: string, version: string): Promise<RunQueryResponse> {
+  public runQuery(query: string, version: string, format: string): Promise<RunQueryResponse> {
     const requestMetadata = {
       method: 'POST',
       headers: {
@@ -47,6 +47,11 @@ export class Client {
       body: JSON.stringify({
         query,
         version,
+        settings: {
+          clickhouse: {
+            output_format: format,
+          },
+        },
       }),
     };
 
