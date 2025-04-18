@@ -7,10 +7,6 @@ on:
         description: 'API URL for the application'
         required: true
         default: 'https://fiddle.clickhouse.com/api/'
-      tag:
-        description: 'Docker image tag'
-        required: true
-        default: 'latest'
 
 jobs:
   build-and-push:
@@ -34,10 +30,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           
+      - name: Get latest git tag
+        id: git_tag
+        run: |
+          # Fetch all tags
+          git fetch --tags
+          # Get the latest tag
+          TAG=$(git describe --tags --abbrev=0)
+          # Remove 'v' prefix if present
+          TAG=${TAG#v}
+          echo "::set-output name=tag::$TAG"
+          
       - name: Set up Docker tags
         id: tags
         run: |
-          echo "::set-output name=tags::lodthe/clickhouse-playground-ui:${{ github.event.inputs.tag }}"
+          echo "::set-output name=tags::lodthe/clickhouse-playground-ui:${{ steps.git_tag.outputs.tag }}"
             
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
