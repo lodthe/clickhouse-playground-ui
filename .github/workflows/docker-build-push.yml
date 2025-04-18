@@ -7,9 +7,10 @@ on:
         description: 'API URL for the application'
         required: true
         default: 'https://fiddle.clickhouse.com/api/'
-  push:
-    tags:
-      - 'v*'
+      tag:
+        description: 'Docker image tag'
+        required: true
+        default: 'latest'
 
 jobs:
   build-and-push:
@@ -33,25 +34,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: lodthe/clickhouse-playground-ui
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=ref,event=branch
+      - name: Set up Docker tags
+        id: tags
+        run: |
+          echo "::set-output name=tags::lodthe/clickhouse-playground-ui:${{ github.event.inputs.tag }}"
             
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.tags.outputs.tags }}
           build-args: |
-            API_URL=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_url || 'https://fiddle.clickhouse.com/api/' }}
+            API_URL=${{ github.event.inputs.api_url }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
