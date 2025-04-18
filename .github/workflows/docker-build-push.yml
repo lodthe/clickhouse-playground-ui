@@ -1,15 +1,7 @@
 name: Docker Build and Push
 
 on:
-  # Temporarily commented out for testing
-  # workflow_dispatch:
-  #   inputs:
-  #     api_url:
-  #       description: 'API URL for the application'
-  #       required: true
-  #       default: 'https://fiddle.clickhouse.com/api/'
-  pull_request:
-    branches: [ '*' ]
+  workflow_dispatch:
 
 jobs:
   build-and-push:
