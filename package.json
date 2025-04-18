@@ -20,6 +20,7 @@
     "@uiw/react-textarea-code-editor": "^2.1.1",
     "react": "latest",
     "react-dom": "latest",
+    "react-resizable-panels": "^2.1.7",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
     "typescript": "latest"
