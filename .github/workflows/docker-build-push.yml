@@ -33,28 +33,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           
-      - name: Get latest git tag
-        id: git_tag
-        run: |
-          # Fetch all tags
-          git fetch --tags
-          # Get the latest tag
-          TAG=$(git describe --tags --abbrev=0)
-          # Remove 'v' prefix if present
-          TAG=${TAG#v}
-          echo "::set-output name=tag::$TAG"
-          
-      - name: Set up Docker tags
-        id: tags
-        run: |
-          echo "::set-output name=tags::lodthe/clickhouse-playground-ui:${{ steps.git_tag.outputs.tag }}"
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: lodthe/clickhouse-playground-ui
             
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ${{ steps.tags.outputs.tags }}
+          platforms: linux/amd64
+          tags: lodthe/clickhouse-playground-ui:latest,${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             API_URL=https://fiddle.clickhouse.com/api/
           cache-from: type=gha
