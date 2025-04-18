@@ -1,12 +1,15 @@
 name: Docker Build and Push
 
 on:
-  workflow_dispatch:
-    inputs:
-      api_url:
-        description: 'API URL for the application'
-        required: true
-        default: 'https://fiddle.clickhouse.com/api/'
+  # Temporarily commented out for testing
+  # workflow_dispatch:
+  #   inputs:
+  #     api_url:
+  #       description: 'API URL for the application'
+  #       required: true
+  #       default: 'https://fiddle.clickhouse.com/api/'
+  pull_request:
+    branches: [ '*' ]
 
 jobs:
   build-and-push:
@@ -53,6 +56,6 @@ jobs:
           push: true
           tags: ${{ steps.tags.outputs.tags }}
           build-args: |
-            API_URL=${{ github.event.inputs.api_url }}
+            API_URL=https://fiddle.clickhouse.com/api/
           cache-from: type=gha
           cache-to: type=gha,mode=max
