@@ -1,3 +1,5 @@
+The web application has moved to [lodthe/clickhouse-playground](https://github.com/lodthe/clickhouse-playground) to keep the project in one repository.
+
 # ClickHouse Playground UI
 
 A simple web application that allows people to interact with ClickHouse by running arbitrary SQL queries on arbitrary ClickHouse version.
